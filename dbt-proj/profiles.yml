@@ -1,0 +1,12 @@
+redshift:
+  target: dev
+  outputs:
+    dev:
+      type: redshift
+      host: compare-warehouse-distributions.cfurovc8lmfv.us-east-1.redshift.amazonaws.com
+      user: "{{ env_var('REDSHIFT_USER') }}"
+      pass: "{{ env_var('REDSHIFT_PASSWORD') }}"
+      port: 5439
+      dbname:  "{{ env_var('REDSHIFT_DBNAME') }}"
+      schema: dbt
+      threads: 4

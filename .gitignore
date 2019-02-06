@@ -1,2 +1,6 @@
 *.sw*
 .envrc
+.user.yml
+__pycache__/
+*.csv
+*/.ipynb_checkpoints/

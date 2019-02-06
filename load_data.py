@@ -1,24 +1,33 @@
-import psycopg2
 import os
+import db
 
-identifier = os.getenv('REDSHIFT_CLUSTER_IDENTIFIER')
-host_root = os.getenv('REDSHIFT_HOST_ROOT')
-dbname = os.getenv('REDSHIFT_DBNAME')
-username = os.getenv('REDSHIFT_USER')
-password = os.getenv('REDSHIFT_PASSWORD')
-port = os.getenv('REDSHIFT_PORT', 5439)
+ROLE_ARN = "arn:aws:iam::768805597102:role/RedshiftReadS3"
 
+TABLE_LIST = [
+    "store_sales",
+    "date_dim",
+    "store",
+    "household_demographics",
+    "customer_address"
+]
 
-host = '.'.join([identifier, host_root])
+conn = db.get_connection()
 
-conn = psycopg2.connect(
-    host=host, port=port, dbname=dbname, user=username, password=password
-)
+# Create table commands
+with open("load_commands.sql", "r") as f:
+    cmds = f.readlines()
 
-with open('load_commands.sql','r') as f:
-    cmds = f.read()
+for cmd in cmds:
+    print(cmd)
+    conn.cursor().execute(cmd)
+    conn.commit()
 
-conn.cursor().execute(cmds)
+copy_template = """
+    copy public.{table_name} from 's3://fivetran-benchmark/tpcds_100_dat/{table_name}/' region 'us-east-1' format delimiter '|' acceptinvchars compupdate on iam_role '{role_arn}';
+"""
 
-# TODO:
-# * On create-whitelist, on name-conflict, vlad should warn and ask for user input to over-write
+for table in TABLE_LIST:
+    cmd = copy_template.format(table_name=table, role_arn=ROLE_ARN)
+    print(cmd)
+    conn.cursor().execute(cmd)
+    conn.commit()

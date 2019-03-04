@@ -15,25 +15,48 @@ If I had learned anything from my history of making statements that claim 100% c
 
 ## The Results: Denormalized Tables Result in Faster Query-Response
 
-Across the 10 different queries I tested, **using a denormalized table resulted in a 26% improvement in query-response time** over using a star schema. We ran each of the queries eight times (four against each type of data warehouse design).
+For both Redshift and Snowflake data warehouses, using a single denormalized table instead of a star schema leads to a substantial improvement in query times. The difference is most pronounced in Redshift, where the speed improvement of using a single denormalized table represents an improvemnt of 25%-30%, worth about 10 seconds on a single-node cluster. In the Snowflake warehouse, the difference was still a meaningful 8%, but the difference is much less pronounced than in Redshift  
 
-Here's a visualization of the results between the one-big-table (OBT) approach, and the star-schema approach:
+### Redshift
 
-![Chart showing denormalized outperforms star](/static/side_by_side_performance.png)
+For the redshift results, we present data from runs using both a large multi-node cluster as well as a small single-node cluster. We also split the results between the first time a query was executed (which will include the time Redshift needs to compile the query) as well as subsequent runs that only include compute time
+
+#### Single-Node
+First run
+![dc2.large, single-node, first run](/analytis/images/dc2.large_single-node_first.png)
+
+Subsequent runs
+![dc2.large, single-node, subsequent runs](/analytis/images/dc2.large_single-node_subsequent.png)
+
+#### Multi-Node
+First run
+![dc2.8xlarge, multi-node, first run](/analytis/images/dc2.8xlarge_multi-node_first.png)
+
+Subsequent runs
+![dc2.8xlarge, multi-node, subsequent runs](/analytis/images/dc2.8xlarge_multi-node_subsequent.png)
 
 Here we can see that the OBT model out-performs the star-schema model in all but one of the 10 queries we tested[^1].
 
-If we visualize the data in terms of relative performance, we can see that (with the exception of the query-4 enigma) the denormalized table out performs the star schema from 10% to 45% depending on the query.
+With the exception of the query-4 enigma, the denormalized table out performs the star schema from 10% to 45% depending on the query.
 
-![Chart showing relative performance in percentages](/static/relative_performance.png)
+### Snowflake
+
+![dc2.8xlarge, multi-node, subsequent runs](/analytis/images/snowflake.png)
 
 ## Analysis details
 
-This comparison was made using a subset of the data from the TPC-DS benchmark, kindly [made available](https://github.com/fivetran/benchmark/) by the folks at Fivetran. We used the TPC-DS "100" data on a redshift dc2.large with 1 node and a dc2.8xlarge cluster with three nodes. All of the graphics presented in this post are from the run with three-nodes, but the one-node results all follow the same pattern (though with slower query times).
+This comparison was made using a subset of the data from the TPC-DS benchmark, kindly [made available](https://github.com/fivetran/benchmark/) by the folks at Fivetran. For all analyses, we used the TPC-DS "100" data.
+
+* Redshift: 
+  * dc2.large with 1 node
+  * dc2.8xlarge cluster with three nodes
+* Snowflake:
+  * X-Large warehouse (16 servers) 
 
 We make use of the following tables: `store_sales`, `date_dim`, `store`, `household_demographics`, `customer_address`
 
-For the star schema, I just kept these tables as-is (distributing the fact table by `ss_item_key` and distributing the dimension tables across all nodes.
+For the star schema, I just kept these tables as-is (distributing the fact table by `ss_item_key` and distributing the dimension tables across all nodes. 
+In redshift, I distribute this by `ss_item_key` as well. For the timing test, we disable redshift's query caching mechanism according to [these docs](https://docs.aws.amazon.com/redshift/latest/dg/r_enable_result_cache_for_session.html). 
 
 For the denormalized tables, I just do a simple join to bring everything together:
 
@@ -50,9 +73,6 @@ LEFT JOIN public.customer_address
   ON store_sales.ss_addr_sk = customer_address.ca_address_sk
 ```
 
-I distribute this by `ss_item_key` as well. For the timing test, we disable redshift's query caching mechanism according to [these docs](https://docs.aws.amazon.com/redshift/latest/dg/r_enable_result_cache_for_session.html).
-
-
 All of the code to reproduce the analysis can be found in [this repo](https://github.com/mikekaminsky/compare-warehouse-distributions).
 
 
@@ -66,7 +86,7 @@ There are a few reasons why you might still want to consider using the star sche
 
 While the first two concerns are important, I think they can be handled pretty easily by staging your ELT process such that the data all get transformed into something like a star schema before everything gets re-joined back together for end-user querying.
 
-The third point deserves more consideration -- materializing the denormalized takes up a significant amount of disk space on the cluster. Simply materializing the table bumped the disk-space usage up from a bit over 30 gigabytes to over 90. 
+The third point deserves more consideration, especially in a datawarehouse like Redshift -- materializing the denormalized takes up a significant amount of disk space on the cluster. Simply materializing the table bumped the disk-space usage up from a bit over 30 gigabytes to over 90. 
 
 ```
        tablename        |  megabytes
@@ -82,7 +102,6 @@ The third point deserves more consideration -- materializing the denormalized ta
 And this is only a subset of the data we could have joined to `store_sales`! In fact, when I initially started on this analysis task I wanted to join all of the possible dimensions onto `store_sales` but couldn't because redshift ran out of disk-space (on a dc2.large cluster with 1 node)
 
 Depending on the scale of your data, the storage cost of duplicating all of the dimensions on disk could just be too high[^2].
-
 
 [^1]: Determining why the star-schema out performs the denormalized table on query 4 is left as an exercise for the reader. Mostly because I have no idea.
 [^2]: Because dbt doesn't have the ability to specify column compression or encoding style in Redshift, this is probably the worst-possible-case in terms of disk storage size. I suspect that with proper column encoding you could alleviate a fair amount of this issue.

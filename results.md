@@ -13,6 +13,14 @@ The first sign that I was wrong was when I wrote this slack message in the [dbt]
 
 If I had learned anything from my history of making statements that claim 100% certainty, I'd know that this is a _strong_ predictor of me being wrong and having to come back and eat crow. So here we are.
 
+## The Goal: Understand Warehouse Performance for BI workloads
+
+The objective of this analysis is to understand the performance implications of these different warehouse distribution patterns under normal BI-style workloads _within a given warehouse_. That is, we aren't trying to [benchmark warehouses against each other](https://fivetran.com/blog/warehouse-benchmark) or understand their relative performance and cost tradeoffs. We want to understand how different data architecture patterns perform once you've chosen which warehouse to use.
+
+In particular, this analysis is focused on architecture patterns to support business-intelligence style workloads, not necessarily the query performance of miscellaneous, arbitrarily complex ad-hoc queries. The way many people build their warehouses today (using an ELT paradigm with a tool like [dbt](https://www.getdbt.com)), the star schema is constructe at the end of an ELT run and is explicitly designed to support BI-type queries in tools like Looker or Periscope. With that in mind, the queries that we use to test these different distribution styles are not especially complex as they're intentionally designed to reflect the common sorts of queries that are run by a BI tool -- aggregating measures over a variety of different dimensions, occasionally with a CTE or window function thrown in.
+
+You can review the queries we used for the test [here](https://github.com/mikekaminsky/compare-warehouse-distributions/tree/master/test_queries).
+
 ## The Results: Denormalized Tables Result in Faster Query-Response
 
 For both Redshift and Snowflake data warehouses, using a single denormalized table instead of a star schema leads to a substantial improvement in query times. The difference is most pronounced in Redshift, where the speed improvement of using a single denormalized table represents an improvemnt of 25%-30%, worth about 10 seconds on a single-node cluster. In the Snowflake warehouse, the difference was still a meaningful 8%, but the difference is much less pronounced than in Redshift  
@@ -35,13 +43,17 @@ First run
 Subsequent runs
 ![dc2.8xlarge, multi-node, subsequent runs](/Analysis/images/dc2.8xlarge_multi-node_subsequent.png)
 
-Here we can see that the OBT model out-performs the star-schema model in all but one of the 10 queries we tested[^1].
+Here we can see that the OBT (denormalized) model out-performs the star-schema model in all but one of the 10 queries we tested[^1].
 
 With the exception of the query-4 enigma, the denormalized table out performs the star schema from 10% to 45% depending on the query.
 
 ### Snowflake
 
+For Snowflake, the results are more mixed. While the OBT (denormalized) model is definitely faster than the star schema in the slowest of queries (queries 8, 9, and 10), the star schema actually does appear to out-perform the OBT model in some of the simpler queries (namely 3, 4, and 7).
+
 ![dc2.8xlarge, multi-node, subsequent runs](/Analysis/images/snowflake.png)
+
+I do not have a good enough intuition for the inner-workings of snowflake to cast any light on _why_ this might be happening, but if any of our readers are snowflake experts we'd love to hear your hypotheses!
 
 ## Analysis details
 

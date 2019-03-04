@@ -23,17 +23,17 @@ For the redshift results, we present data from runs using both a large multi-nod
 
 #### Single-Node
 First run
-![dc2.large, single-node, first run](/analytis/images/dc2.large_single-node_first.png)
+![dc2.large, single-node, first run](/analysis/images/dc2.large_single-node_first.png)
 
 Subsequent runs
-![dc2.large, single-node, subsequent runs](/analytis/images/dc2.large_single-node_subsequent.png)
+![dc2.large, single-node, subsequent runs](/analysis/images/dc2.large_single-node_subsequent.png)
 
 #### Multi-Node
 First run
-![dc2.8xlarge, multi-node, first run](/analytis/images/dc2.8xlarge_multi-node_first.png)
+![dc2.8xlarge, multi-node, first run](/analysis/images/dc2.8xlarge_multi-node_first.png)
 
 Subsequent runs
-![dc2.8xlarge, multi-node, subsequent runs](/analytis/images/dc2.8xlarge_multi-node_subsequent.png)
+![dc2.8xlarge, multi-node, subsequent runs](/analysis/images/dc2.8xlarge_multi-node_subsequent.png)
 
 Here we can see that the OBT model out-performs the star-schema model in all but one of the 10 queries we tested[^1].
 
@@ -41,7 +41,7 @@ With the exception of the query-4 enigma, the denormalized table out performs th
 
 ### Snowflake
 
-![dc2.8xlarge, multi-node, subsequent runs](/analytis/images/snowflake.png)
+![dc2.8xlarge, multi-node, subsequent runs](/analysis/images/snowflake.png)
 
 ## Analysis details
 

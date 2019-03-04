@@ -1,0 +1,20 @@
+redshift:
+  cluster_identifier: compare-warehouse-distributions
+  db_name: ENV['REDSHIFT_DBNAME']
+  user: ENV['REDSHIFT_USER']
+  password: ENV['REDSHIFT_PASSWORD']
+  port: 5439
+  #cluster_type: multi-node
+  #node_type: dc2.8xlarge
+  number_of_nodes: 1
+  cluster_type: single-node
+  node_type: dc2.large
+
+snowflake:
+  user: ENV['SNOWFLAKE_USER']
+  password: ENV['SNOWFLAKE_PASSWORD']
+  account: ENV['SNOWFLAKE_ACCOUNT']
+
+bigquery:
+
+security_group_name: whitelist-ip2

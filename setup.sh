@@ -3,8 +3,8 @@
 # Log commands and quit if you encounter any error
 set -ex
 
-vlad create_cluster
-vlad add_security_group --use-my-current-ip
-vlad attach_iam_policy RedshiftReadS3
-vlad describe_clusters
+vlad --config-file dbconf.yml create_cluster 
+vlad --config-file dbconf.yml add_security_group  --use-my-current-ip 
+vlad --config-file dbconf.yml attach_iam_policy  RedshiftReadS3
+vlad --config-file dbconf.yml describe_clusters 
 

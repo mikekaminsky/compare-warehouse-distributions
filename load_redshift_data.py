@@ -4,14 +4,14 @@ import db
 ROLE_ARN = "arn:aws:iam::768805597102:role/RedshiftReadS3"
 
 TABLE_LIST = [
-    "store_sales",
     "date_dim",
     "store",
     "household_demographics",
-    "customer_address"
+    "customer_address",
+    "store_sales"
 ]
 
-conn = db.get_connection()
+conn = db.get_connection('redshift')
 
 # Create table commands
 with open("load_commands.sql", "r") as f:

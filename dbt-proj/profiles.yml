@@ -10,3 +10,27 @@ redshift:
       dbname:  "{{ env_var('REDSHIFT_DBNAME') }}"
       schema: dbt
       threads: 4
+snowflake:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password:  "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: SYSADMIN
+      database: DEMO_DB
+      warehouse: COMPUTE_WH
+      schema: dbt
+      threads: 4
+bigquery:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: singular-vector-135519
+      schema: dbt
+      threads: 4
+
+

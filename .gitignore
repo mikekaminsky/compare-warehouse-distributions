@@ -4,3 +4,5 @@
 __pycache__/
 *.csv
 */.ipynb_checkpoints/
+bq-compare-distribution-creds.json
+.DS_Store

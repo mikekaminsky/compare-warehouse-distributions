@@ -29,7 +29,7 @@ bigquery:
     dev:
       type: bigquery
       method: oauth
-      project: singular-vector-135519
+      project: compare-distributions
       schema: dbt
       threads: 4
 

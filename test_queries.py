@@ -19,9 +19,9 @@ conn = db.get_connection(db_type)
 
 # Disable cache
 if db_type == 'redshift':
-    db.run_command(conn, disable_cache)
+    db.run_command(db_type, conn, disable_cache)
 if db_type == 'snowflake':
-    db.run_command(conn, 'USE DATABASE DEMO_DB')
+    db.run_command(db_type, conn, 'USE DATABASE DEMO_DB')
 
 def time_it(test_dir, style, nth):
     fn = os.path.join("test_queries", test_dir, style + ".sql")
@@ -31,7 +31,7 @@ def time_it(test_dir, style, nth):
     start_time = time.time()
     if db_type == 'redshift':
         query = disable_cache + query
-    query_res = db.get_query_results(conn, query)
+    query_res = db.get_query_results(db_type, conn, query)
     end_time = time.time()
     elapsed = end_time - start_time
     print("Completed in: {}".format(elapsed))

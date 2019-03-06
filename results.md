@@ -23,7 +23,7 @@ You can review the queries we used for the test [here](https://github.com/mikeka
 
 ## The Results: Denormalized Tables Result in Faster Query-Response
 
-For both Redshift and Snowflake data warehouses, using a single denormalized table instead of a star schema leads to a substantial improvement in query times. The difference is most pronounced in Redshift, where the speed improvement of using a single denormalized table represents an improvemnt of 25%-30%, worth about 10 seconds on a single-node cluster. In the Snowflake warehouse, the difference was still a meaningful 8%, but the difference is much less pronounced than in Redshift  
+For all three of the warehouses we tested, Redshift, Snowflake, and Bigquery, using a single denormalized table instead of a star schema leads to a substantial improvement in query times. The difference is most pronounced in Redshift and Bigquery, where the speed improvement of using a single denormalized table represents an improvemnt of 25%-30%. This amounts to a difference of about 10 seconds on a single-node cluster in Redshift. In the Snowflake warehouse, the difference was still a meaningful 8%, but the difference is much less pronounced than in Redshift or Bigquery. 
 
 ### Redshift
 
@@ -72,6 +72,8 @@ This comparison was made using a subset of the data from the TPC-DS benchmark, k
   * dc2.8xlarge cluster with three nodes
 * Snowflake:
   * X-Large warehouse (16 servers) 
+* Bigquery:
+  * I used whatever the default configuration comes with a fresh warehouse
 
 We make use of the following tables: `store_sales`, `date_dim`, `store`, `household_demographics`, `customer_address`
 

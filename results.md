@@ -51,9 +51,17 @@ With the exception of the query-4 enigma, the denormalized table out performs th
 
 For Snowflake, the results are more mixed. While the OBT (denormalized) model is definitely faster than the star schema in the slowest of queries (queries 8, 9, and 10), the star schema actually does appear to out-perform the OBT model in some of the simpler queries (namely 3, 4, and 7).
 
-![dc2.8xlarge, multi-node, subsequent runs](/Analysis/images/snowflake.png)
+![Snowflake query results](/Analysis/images/snowflake.png)
 
 I do not have a good enough intuition for the inner-workings of snowflake to cast any light on _why_ this might be happening, but if any of our readers are snowflake experts we'd love to hear your hypotheses!
+
+### Bigquery
+
+For bigquery, the results are just as dramatic as what we saw in Redshift -- the average improvement in query response time is 32%, with the denormalized table out-performing the star schema in almost every category (query 4 is basically a tie). 
+
+![Bigquery query results](/Analysis/images/bigquery.png)
+
+One thing that's interesting to note is how dramatically different the _variances_ in the query response times are between the two different distribution styles -- the star schema has a much higher variance in query response time which I assumes has to do with how bigquery is planning the execution under the hood (but I'm definitely not a BQ expert, so would love someone with more knowledge to weigh-in on what's going on here).
 
 ## Analysis details
 
@@ -115,7 +123,13 @@ And this is only a subset of the data we could have joined to `store_sales`! In 
 
 Depending on the scale of your data, the storage cost of duplicating all of the dimensions on disk could just be too high[^2].
 
+## Get in touch
+
+If you have questions or thoughts on this analysis, I'd love to hear them. You can reach me via email at [kaminsky.michael@gmail.com](mailto:kaminsky.michael@gmail.com) or you can find me at my other blog locallyoptimistic.com.
+
+
 [^1]: Determining why the star-schema out performs the denormalized table on query 4 is left as an exercise for the reader. Mostly because I have no idea.
+
 [^2]: Because dbt doesn't have the ability to specify column compression or encoding style in Redshift, this is probably the worst-possible-case in terms of disk storage size. I suspect that with proper column encoding you could alleviate a fair amount of this issue.
 
 

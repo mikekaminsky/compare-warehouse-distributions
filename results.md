@@ -49,7 +49,7 @@ With the exception of the query-4 enigma, the denormalized table out performs th
 
 ### Snowflake
 
-For Snowflake, the results are more mixed. While the OBT (denormalized) model is definitely faster than the star schema in the slowest of queries (queries 8, 9, and 10), the star schema actually does appear to out-perform the OBT model in some of the simpler queries (namely 3, 4, and 7).
+For Snowflake, the results are more mixed. While the OBT (denormalized) model is definitely faster than the star schema in the slowest of queries (queries 8, 9, and 10), the star schema actually does appear to out-perform the OBT model in some of the simpler queries (namely 3, 4, and 7). Note that these queries _include_ query compilation time.
 
 ![Snowflake query results](/Analysis/images/snowflake.png)
 
@@ -57,7 +57,7 @@ I do not have a good enough intuition for the inner-workings of snowflake to cas
 
 ### Bigquery
 
-For bigquery, the results are just as dramatic as what we saw in Redshift -- the average improvement in query response time is 32%, with the denormalized table out-performing the star schema in almost every category (query 4 is basically a tie). 
+For bigquery, the results are even more dramatic than what we saw in Redshift -- the average improvement in query response time is 49%, with the denormalized table out-performing the star schema in every category. Note that these queries _include_ query compilation time.
 
 ![Bigquery query results](/Analysis/images/bigquery.png)
 
@@ -78,7 +78,7 @@ This comparison was made using a subset of the data from the TPC-DS benchmark, k
 We make use of the following tables: `store_sales`, `date_dim`, `store`, `household_demographics`, `customer_address`
 
 For the star schema, I just kept these tables as-is (distributing the fact table by `ss_item_key` and distributing the dimension tables across all nodes. 
-In redshift, I distribute this by `ss_item_key` as well. For the timing test, we disable redshift's query caching mechanism according to [these docs](https://docs.aws.amazon.com/redshift/latest/dg/r_enable_result_cache_for_session.html). 
+In redshift, I distribute this by `ss_item_key` as well. For the timing test, we disable redshift's query caching mechanism according to [these docs for redshift](https://docs.aws.amazon.com/redshift/latest/dg/r_enable_result_cache_for_session.html) and [these docs for bigquery](https://cloud.google.com/bigquery/docs/cached-results). 
 
 For the denormalized tables, I just do a simple join to bring everything together:
 

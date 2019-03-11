@@ -26,7 +26,7 @@ def get_connection(db_type):
     if db_type == "snowflake":
         password = os.getenv("SNOWFLAKE_PASSWORD")
         user = os.getenv("SNOWFLAKE_USER")
-        user = os.getenv("SNOWFLAKE_ACCOUNT")
+        account = os.getenv("SNOWFLAKE_ACCOUNT")
         conn = snowflake.connector.connect(
             user=user, password=password, account=account
         )
@@ -40,7 +40,10 @@ def get_connection(db_type):
 def run_command(db_type, conn, cmd):
     print(cmd)
     if db_type == "bigquery":
-        query_job = conn.query(cmd)
+
+        job_config = bigquery.QueryJobConfig()
+        job_config.use_query_cache = False
+        query_job = conn.query(cmd, job_config=job_config)
         results = query_job.result()
     else:
         cur = conn.cursor()
@@ -51,6 +54,9 @@ def run_command(db_type, conn, cmd):
 def get_query_results(db_type, conn, qry):
     if db_type == "bigquery":
         query_job = conn.query(qry)
+        job_config = bigquery.QueryJobConfig()
+        job_config.use_query_cache = False
+        query_job = conn.query(qry, job_config=job_config)
         results = query_job.result()
     else:
         cur = conn.cursor()
